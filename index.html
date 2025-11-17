@@ -199,7 +199,7 @@
       margin-bottom: 3px;
     }
 
-    input[type="text"], input[type="number"] {
+    input[type="text"], input[type="number"], select {
       padding: 10px 11px;
       border-radius: 14px;
       border: 1px solid rgba(209, 213, 219, 0.9);
@@ -210,7 +210,9 @@
       width: 100%;
     }
 
-    input[type="text"]:focus, input[type="number"]:focus {
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
       outline: none;
       border-color: rgba(129, 140, 248, 0.9);
       box-shadow: 0 0 0 1.5px rgba(129, 140, 248, 0.35);
@@ -280,6 +282,13 @@
     button.secondary.icon {
       background: #f3f4f6;
       border: 1px solid #e5e7eb;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
     }
 
     /* Tabs */
@@ -361,7 +370,7 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
-      background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(239, 246, 255, 0.9));
+      background: rgba(248, 250, 252, 0.95);
       border: 1px solid rgba(209, 213, 219, 0.9);
     }
 
@@ -525,7 +534,7 @@
       color: #6b7280;
     }
 
-    /* Add chore form */
+    /* Add / assign chore form */
     #addChoreForm {
       margin-top: 4px;
     }
@@ -545,6 +554,18 @@
 
     .faded {
       opacity: 0.7;
+    }
+
+    .assign-row {
+      margin-top: 10px;
+    }
+
+    .assign-controls {
+      margin-top: 4px;
+    }
+
+    .assign-controls > div {
+      flex: 1 1 120px;
     }
 
     /* --- Mobile tweaks --- */
@@ -636,6 +657,10 @@
       th, td {
         padding: 7px 6px;
       }
+
+      .assign-controls {
+        flex-direction: column;
+      }
     }
 
     @media (max-width: 480px) {
@@ -659,7 +684,7 @@
             <span class="emoji">🧹✨</span>
             <span>Rainbow Chore Tracker</span>
           </h1>
-          <div class="badge-soft">Indi &amp; Pete · 7 days · 1 happy house</div>
+          <div class="badge-soft">Indi &amp; Pete · 7 days</div>
         </div>
         <div class="week-pill">
           <span class="pill-dot"></span>
@@ -700,9 +725,6 @@
               <input id="person2Input" type="text" placeholder="e.g. Pete">
             </div>
           </div>
-          <div class="tiny" style="margin-top: 6px;">
-            Tip: You can rename these any time, but we’ve started you off with Indi &amp; Pete. 😉
-          </div>
         </section>
 
         <!-- Day & person tabs -->
@@ -723,9 +745,6 @@
             <label>Focus</label>
             <div class="tab-row" id="personTabs"></div>
           </div>
-          <div class="tiny" style="margin-top: 6px;">
-            Switch days along the top, and focus on one person or both to see who’s pulling their weight. 💪
-          </div>
         </section>
       </section>
 
@@ -741,11 +760,11 @@
             <div class="tiny faded" id="choresSubtitle"></div>
           </div>
 
-          <!-- Add chore -->
+          <!-- Add new chore to master list -->
           <form id="addChoreForm" class="row stretch" autocomplete="off">
             <div class="add-chore-main">
-              <label for="choreNameInput">New chore</label>
-              <input id="choreNameInput" type="text" placeholder="e.g. Extra tasks, guests, events" required>
+              <label for="choreNameInput">Add new chore</label>
+              <input id="choreNameInput" type="text" placeholder="e.g. Clean fridge" required>
             </div>
             <div class="add-chore-target">
               <label for="targetInput">Weekly target</label>
@@ -753,11 +772,30 @@
             </div>
             <div style="align-self: flex-end; flex: 1 1 100%; max-width: 220px;">
               <button type="submit" style="width:100%;">
-                <span class="sparkles">✨</span>
-                Add chore
+                <span class="sparkles">＋</span>
+                Save chore
               </button>
             </div>
           </form>
+
+          <!-- Assign existing chore to this day -->
+          <div class="assign-row">
+            <label>Assign existing chore to this day</label>
+            <div class="row assign-controls">
+              <div>
+                <select id="assignChoreSelect"></select>
+              </div>
+              <div style="max-width:140px;">
+                <select id="assignPersonSelect"></select>
+              </div>
+              <div style="max-width:120px;">
+                <button type="button" id="assignChoreBtn">
+                  ➕ Add to day
+                </button>
+              </div>
+            </div>
+            <div class="tiny" id="assignHelperText" style="margin-top:4px;"></div>
+          </div>
 
           <div style="margin-top: 10px;">
             <div class="table-wrapper" id="choreTableWrapper">
@@ -770,7 +808,7 @@
         <section class="card">
           <div class="card-header">
             <div class="card-title">
-              📊 Weekly vibes
+              📊 Weekly summary
               <span class="card-title-pill">Quick stats</span>
             </div>
           </div>
@@ -814,10 +852,6 @@
               </div>
               <div class="summary-pill-value" id="summaryPersonCount">0</div>
             </div>
-          </div>
-
-          <div class="tiny" style="margin-top: 8px;">
-            Goal: By Sunday night, the numbers feel fair and the house feels ✨ less chaotic.
           </div>
         </section>
       </section>
@@ -985,6 +1019,7 @@
       else summaryPersonLabel.textContent = 'Both';
 
       renderPersonTabs();
+      renderAssignControls();
     }
 
     // -------------------- Rendering: tabs --------------------
@@ -1076,6 +1111,71 @@
       document.getElementById('summaryPersonCount').textContent = personTotal;
     }
 
+    // -------------------- Rendering: assign existing chore controls --------------------
+
+    function renderAssignControls() {
+      const choreSelect = document.getElementById('assignChoreSelect');
+      const personSelect = document.getElementById('assignPersonSelect');
+      const helper = document.getElementById('assignHelperText');
+      const btn = document.getElementById('assignChoreBtn');
+      if (!choreSelect || !personSelect || !helper || !btn) return;
+
+      const dayKey = state.activeDay;
+      const dayLog = ensureDayLog(dayKey);
+
+      // Chores not yet assigned to this day
+      const available = state.chores.filter(ch => !dayLog[ch.id]);
+
+      choreSelect.innerHTML = '';
+
+      if (!state.chores.length) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'No chores yet – add one first.';
+        choreSelect.appendChild(opt);
+        choreSelect.disabled = true;
+        btn.disabled = true;
+        helper.textContent = 'Use "Save chore" above to create some chores.';
+      } else if (!available.length) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'All chores already on this day';
+        choreSelect.appendChild(opt);
+        choreSelect.disabled = true;
+        btn.disabled = true;
+        helper.textContent = `Every chore is already scheduled for ${getDayLabel(dayKey)}.`;
+      } else {
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Choose a chore...';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        choreSelect.appendChild(placeholder);
+
+        available.forEach(ch => {
+          const opt = document.createElement('option');
+          opt.value = ch.id;
+          opt.textContent = ch.name;
+          choreSelect.appendChild(opt);
+        });
+
+        choreSelect.disabled = false;
+        btn.disabled = false;
+        helper.textContent = 'Pick a chore, pick a person, then hit "Add to day".';
+      }
+
+      // Person select
+      personSelect.innerHTML = '';
+      const opt1 = document.createElement('option');
+      opt1.value = 'p1';
+      opt1.textContent = state.person1Name;
+      const opt2 = document.createElement('option');
+      opt2.value = 'p2';
+      opt2.textContent = state.person2Name;
+      personSelect.appendChild(opt1);
+      personSelect.appendChild(opt2);
+    }
+
     // -------------------- Rendering: chores table (DAY FILTERED) --------------------
 
     function renderChores() {
@@ -1097,6 +1197,7 @@
             <span class="icon">🪄</span>
             No chores yet. Add one above to start building your weekly plan.
           </div>`;
+        renderAssignControls();
         return;
       }
 
@@ -1113,14 +1214,15 @@
       badge.textContent = `${dayEmoji} ${dayLabel}`;
       subtitle.textContent = choresForDay.length
         ? `Showing chores scheduled for ${dayLabel} – viewing ${focusLabel}.`
-        : `No chores scheduled for ${dayLabel} yet. Try "🎲 Auto-assign week" or assign tasks manually.`;
+        : `No chores scheduled for ${dayLabel} yet.`;
 
       if (!choresForDay.length) {
         container.innerHTML = `
           <div class="empty-state">
             <span class="icon">😎</span>
-            Looks like ${dayLabel} is currently chore-free. Nice.
+            Looks like ${dayLabel} is currently chore-free.
           </div>`;
+        renderAssignControls();
         return;
       }
 
@@ -1220,6 +1322,7 @@
 
       html += '</tbody></table>';
       container.innerHTML = html;
+      renderAssignControls();
     }
 
     // -------------------- Random assignment logic --------------------
@@ -1355,6 +1458,35 @@
       renderSummary();
     }
 
+    function handleAssignChoreToDay() {
+      const choreSelect = document.getElementById('assignChoreSelect');
+      const personSelect = document.getElementById('assignPersonSelect');
+      if (!choreSelect || !personSelect) return;
+
+      const choreId = choreSelect.value;
+      const person = personSelect.value;
+      if (!choreId || !person) return;
+
+      const dayKey = state.activeDay;
+      const dayLog = ensureDayLog(dayKey);
+
+      // Only assign if not already present (defensive)
+      if (dayLog[choreId]) {
+        alert('That chore is already scheduled for this day.');
+        return;
+      }
+
+      dayLog[choreId] = {
+        p1Count: person === 'p1' ? 1 : 0,
+        p2Count: person === 'p2' ? 1 : 0
+      };
+
+      state.logs[dayKey] = dayLog;
+      saveState();
+      renderChores();
+      renderSummary();
+    }
+
     function handleChoreTableClick(e) {
       const button = e.target.closest('button');
       if (!button) return;
@@ -1439,6 +1571,7 @@
       document.getElementById('choreTableWrapper').addEventListener('click', handleChoreTableClick);
       document.getElementById('resetWeekBtn').addEventListener('click', handleResetWeek);
       document.getElementById('autoAssignWeekBtn').addEventListener('click', handleAutoAssignWeek);
+      document.getElementById('assignChoreBtn').addEventListener('click', handleAssignChoreToDay);
     }
 
     document.addEventListener('DOMContentLoaded', init);
