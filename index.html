@@ -975,7 +975,7 @@
       document.getElementById('summaryPersonCount').textContent = personTotal;
     }
 
-    // -------------------- Rendering: chores table --------------------
+    // -------------------- Rendering: chores table (DAY FILTERED) --------------------
 
     function renderChores() {
       const container = document.getElementById('choreTableContainer');
@@ -988,15 +988,9 @@
       const badge = document.getElementById('choresTitleBadge');
       const subtitle = document.getElementById('choresSubtitle');
 
-      const focusLabel =
-        filter === 'both'
-          ? 'both people'
-          : (filter === 'p1' ? state.person1Name : state.person2Name);
-
-      badge.textContent = `${dayEmoji} ${dayLabel}`;
-      subtitle.textContent = `Tracking chores for ${dayLabel} – viewing ${focusLabel}.`;
-
       if (!state.chores.length) {
+        badge.textContent = `${dayEmoji} ${dayLabel}`;
+        subtitle.textContent = `No chores defined yet. Add some above to get started.`;
         container.innerHTML = `
           <div class="empty-state">
             <span class="icon">🪄</span>
@@ -1006,6 +1000,28 @@
       }
 
       const dayLog = ensureDayLog(dayKey);
+
+      // Only show chores that actually have an entry for THIS day
+      const choresForDay = state.chores.filter(ch => dayLog[ch.id]);
+
+      const focusLabel =
+        filter === 'both'
+          ? 'both people'
+          : (filter === 'p1' ? state.person1Name : state.person2Name);
+
+      badge.textContent = `${dayEmoji} ${dayLabel}`;
+      subtitle.textContent = choresForDay.length
+        ? `Showing chores scheduled for ${dayLabel} – viewing ${focusLabel}.`
+        : `No chores scheduled for ${dayLabel} yet. Try "🎲 Auto-assign week" or assign tasks manually.`;
+
+      if (!choresForDay.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <span class="icon">😎</span>
+            Looks like ${dayLabel} is currently chore-free. Nice.
+          </div>`;
+        return;
+      }
 
       let html = `
         <table>
@@ -1032,7 +1048,7 @@
         <tbody>
       `;
 
-      state.chores.forEach(chore => {
+      choresForDay.forEach(chore => {
         const entry = dayLog[chore.id] || { p1Count: 0, p2Count: 0 };
         const p1 = entry.p1Count || 0;
         const p2 = entry.p2Count || 0;
@@ -1170,7 +1186,7 @@
         const dayLog = {};
 
         choresForDay.forEach((chore, index) => {
-          const assignToP1 = index % 2 === 0; // alternate, gives near-even split
+          const assignToP1 = index % 2 === 0; // alternate, near-even split
           dayLog[chore.id] = {
             p1Count: assignToP1 ? 1 : 0,
             p2Count: assignToP1 ? 0 : 1
