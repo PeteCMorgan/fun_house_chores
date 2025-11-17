@@ -558,7 +558,7 @@
             <span class="emoji">🧹✨</span>
             <span>Rainbow Chore Tracker</span>
           </h1>
-          <div class="badge-soft">Indi & Pete · 7 days · 1 happy house</div>
+          <div class="badge-soft">Indi &amp; Pete · 7 days · 1 happy house</div>
         </div>
         <div class="week-pill">
           <span class="pill-dot"></span>
@@ -578,10 +578,15 @@
               👥 Housemates
               <span class="card-title-pill">Who’s doing what?</span>
             </div>
-            <button id="resetWeekBtn" class="small secondary" type="button" title="Reset all counts for all days">
-              <span class="dot"></span>
-              New week
-            </button>
+            <div class="row" style="gap:6px;">
+              <button id="autoAssignWeekBtn" class="small" type="button" title="Randomly assign chores for the whole week">
+                🎲 Auto-assign week
+              </button>
+              <button id="resetWeekBtn" class="small secondary" type="button" title="Reset all counts for all days">
+                <span class="dot"></span>
+                New week
+              </button>
+            </div>
           </div>
 
           <div class="row stretch">
@@ -604,7 +609,7 @@
           <div class="card-header">
             <div class="card-title">
               📅 View
-              <span class="card-title-pill">Day & person</span>
+              <span class="card-title-pill">Day &amp; person</span>
             </div>
           </div>
 
@@ -1100,6 +1105,86 @@
       container.innerHTML = html;
     }
 
+    // -------------------- Random assignment logic --------------------
+
+    // Fisher–Yates shuffle
+    function shuffleArray(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function autoAssignWeek() {
+      if (!state.chores.length) return;
+
+      const confirmMsg =
+        'This will reset all existing counts and randomly assign chores between Indi and Pete for the whole week.\n\nContinue?';
+      if (!confirm(confirmMsg)) return;
+
+      // Clear existing logs
+      state.logs = {};
+
+      // Map day -> chores scheduled for that day
+      const dayAssignments = {};
+      DAYS.forEach(d => {
+        dayAssignments[d.key] = [];
+      });
+
+      state.chores.forEach(ch => {
+        const nameLower = ch.name.toLowerCase();
+
+        const isClothes = nameLower.startsWith('fold and put away clothes');
+        const isLaundry = nameLower.startsWith('do laundry');
+
+        if (isClothes || isLaundry) {
+          // These only appear on Mon/Wed/Fri
+          ['mon', 'wed', 'fri'].forEach(dKey => {
+            dayAssignments[dKey].push(ch);
+          });
+        } else {
+          // Weekly jobs: assign to exactly one day in a balanced way
+          let bestDay = DAYS[0].key;
+          let minLen = dayAssignments[bestDay].length;
+
+          for (let i = 1; i < DAYS.length; i++) {
+            const candidate = DAYS[i].key;
+            const len = dayAssignments[candidate].length;
+            if (len < minLen) {
+              minLen = len;
+              bestDay = candidate;
+            }
+          }
+
+          dayAssignments[bestDay].push(ch);
+        }
+      });
+
+      // For each day, split chores as evenly as possible between Indi & Pete
+      DAYS.forEach(d => {
+        const choresForDay = shuffleArray(dayAssignments[d.key]);
+        if (!choresForDay.length) return;
+
+        const dayLog = {};
+
+        choresForDay.forEach((chore, index) => {
+          const assignToP1 = index % 2 === 0; // alternate, gives near-even split
+          dayLog[chore.id] = {
+            p1Count: assignToP1 ? 1 : 0,
+            p2Count: assignToP1 ? 0 : 1
+          };
+        });
+
+        state.logs[d.key] = dayLog;
+      });
+
+      saveState();
+      renderChores();
+      renderSummary();
+    }
+
     // -------------------- Event handlers --------------------
 
     function handleNameChange() {
@@ -1202,6 +1287,10 @@
       renderSummary();
     }
 
+    function handleAutoAssignWeek() {
+      autoAssignWeek();
+    }
+
     // -------------------- Init --------------------
 
     function setInitialActiveDay() {
@@ -1232,6 +1321,7 @@
       document.getElementById('addChoreForm').addEventListener('submit', handleAddChore);
       document.getElementById('choreTableWrapper').addEventListener('click', handleChoreTableClick);
       document.getElementById('resetWeekBtn').addEventListener('click', handleResetWeek);
+      document.getElementById('autoAssignWeekBtn').addEventListener('click', handleAutoAssignWeek);
     }
 
     document.addEventListener('DOMContentLoaded', init);
