@@ -1,0 +1,2429 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>Rainbow Chore Tracker</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+  <!-- Fun Google Font (optional, safe) -->
+
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600&display=swap" rel="stylesheet">
+
+
+
+  <style>
+
+    :root {
+
+      --bg-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 25%, #f6d365 50%, #fbc2eb 75%, #a1c4fd 100%);
+
+      --card-bg: rgba(255, 255, 255, 0.97);
+
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.18);
+
+      --accent-1: #6366f1;
+
+      --accent-2: #ec4899;
+
+      --accent-3: #22c55e;
+
+      --accent-4: #f97316;
+
+      --danger: #ef4444;
+
+      --text-main: #111827;
+
+      --text-muted: #6b7280;
+
+    }
+
+
+
+    * {
+
+      box-sizing: border-box;
+
+    }
+
+
+
+    body {
+
+      margin: 0;
+
+      padding: 0;
+
+      min-height: 100vh;
+
+      font-family: "Baloo 2", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      background-image: var(--bg-gradient);
+
+      background-attachment: fixed;
+
+      color: var(--text-main);
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: stretch;
+
+    }
+
+
+
+    main.app {
+
+      width: 100%;
+
+      max-width: 1040px;
+
+      padding: 18px 14px 26px;
+
+    }
+
+
+
+    .app-inner {
+
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.9), rgba(255,255,255,0.92));
+
+      border-radius: 26px;
+
+      padding: 18px 16px 22px;
+
+      box-shadow: var(--shadow-soft);
+
+      border: 1px solid rgba(255,255,255,0.7);
+
+      backdrop-filter: blur(16px);
+
+    }
+
+
+
+    header.app-header {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 10px;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      margin-bottom: 14px;
+
+    }
+
+
+
+    .title-row {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 6px;
+
+      align-items: center;
+
+    }
+
+
+
+    h1 {
+
+      font-size: 1.55rem;
+
+      letter-spacing: 0.02em;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+      margin: 0;
+
+    }
+
+
+
+    h1 span.emoji {
+
+      font-size: 1.3em;
+
+    }
+
+
+
+    .subtitle {
+
+      font-size: 0.9rem;
+
+      color: var(--text-muted);
+
+    }
+
+
+
+    .week-pill {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+      padding: 6px 12px;
+
+      border-radius: 999px;
+
+      background: rgba(255,255,255,0.9);
+
+      border: 1px solid rgba(148, 163, 184, 0.5);
+
+      font-size: 0.8rem;
+
+      color: #4b5563;
+
+    }
+
+
+
+    .week-pill span.label {
+
+      font-weight: 600;
+
+      text-transform: uppercase;
+
+      font-size: 0.75rem;
+
+      letter-spacing: 0.06em;
+
+      color: #9ca3af;
+
+    }
+
+
+
+    .week-pill span.dates {
+
+      font-weight: 600;
+
+      color: #4b5563;
+
+    }
+
+
+
+    .pill-dot {
+
+      width: 7px;
+
+      height: 7px;
+
+      border-radius: 999px;
+
+      background: linear-gradient(135deg, #f97316, #ec4899);
+
+    }
+
+
+
+    /* Layout grid */
+
+    .grid-top {
+
+      display: grid;
+
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+
+      gap: 16px;
+
+      margin-bottom: 14px;
+
+    }
+
+
+
+    .grid-bottom {
+
+      display: grid;
+
+      grid-template-columns: minmax(0, 3fr);
+
+      gap: 14px;
+
+    }
+
+
+
+    @media (min-width: 900px) {
+
+      .grid-bottom {
+
+        grid-template-columns: minmax(0, 3.5fr) minmax(0, 2.5fr);
+
+      }
+
+    }
+
+
+
+    .card {
+
+      background: var(--card-bg);
+
+      border-radius: 20px;
+
+      padding: 12px 12px 14px;
+
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+
+      border: 1px solid rgba(226, 232, 240, 0.9);
+
+    }
+
+
+
+    .card-header {
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 8px;
+
+      margin-bottom: 8px;
+
+    }
+
+
+
+    .card-title {
+
+      font-size: 0.92rem;
+
+      font-weight: 600;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+    }
+
+
+
+    .card-title-pill {
+
+      padding: 2px 8px;
+
+      border-radius: 999px;
+
+      font-size: 0.7rem;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.06em;
+
+      background: rgba(59, 130, 246, 0.12);
+
+      color: #1d4ed8;
+
+    }
+
+
+
+    .tiny {
+
+      font-size: 0.75rem;
+
+      color: var(--text-muted);
+
+    }
+
+
+
+    .row {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 8px;
+
+      align-items: center;
+
+    }
+
+
+
+    .row.stretch {
+
+      align-items: stretch;
+
+    }
+
+
+
+    .row.space-between {
+
+      justify-content: space-between;
+
+    }
+
+
+
+    label {
+
+      font-size: 0.7rem;
+
+      font-weight: 600;
+
+      color: #9ca3af;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.08em;
+
+      display: block;
+
+      margin-bottom: 3px;
+
+    }
+
+
+
+    input[type="text"], input[type="number"] {
+
+      padding: 8px 9px;
+
+      border-radius: 14px;
+
+      border: 1px solid rgba(209, 213, 219, 0.9);
+
+      font-size: 0.9rem;
+
+      min-width: 0;
+
+      background: rgba(249, 250, 251, 0.9);
+
+      transition: all 0.15s ease-out;
+
+    }
+
+
+
+    input[type="text"]:focus, input[type="number"]:focus {
+
+      outline: none;
+
+      border-color: rgba(129, 140, 248, 0.9);
+
+      box-shadow: 0 0 0 1.5px rgba(129, 140, 248, 0.35);
+
+      background: white;
+
+    }
+
+
+
+    .name-field {
+
+      flex: 1 1 140px;
+
+    }
+
+
+
+    .names-emoji {
+
+      font-size: 1.1rem;
+
+      margin-left: 4px;
+
+    }
+
+
+
+    button {
+
+      border: none;
+
+      border-radius: 999px;
+
+      padding: 7px 13px;
+
+      font-size: 0.85rem;
+
+      font-weight: 600;
+
+      cursor: pointer;
+
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+
+      color: white;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+      white-space: nowrap;
+
+      box-shadow: 0 8px 18px rgba(129, 140, 248, 0.55);
+
+      transition: all 0.12s ease-out;
+
+    }
+
+
+
+    button span.dot {
+
+      width: 10px;
+
+      height: 10px;
+
+      border-radius: 999px;
+
+      background: rgba(255, 255, 255, 0.8);
+
+    }
+
+
+
+    button:hover {
+
+      transform: translateY(-1px) scale(1.01);
+
+      box-shadow: 0 10px 24px rgba(129, 140, 248, 0.75);
+
+    }
+
+
+
+    button:active {
+
+      transform: translateY(0);
+
+      box-shadow: 0 5px 16px rgba(129, 140, 248, 0.6);
+
+    }
+
+
+
+    button.secondary {
+
+      background: linear-gradient(135deg, #e5e7eb, #f9fafb);
+
+      color: #4b5563;
+
+      box-shadow: 0 4px 10px rgba(148, 163, 184, 0.45);
+
+    }
+
+
+
+    button.small {
+
+      padding: 4px 9px;
+
+      font-size: 0.78rem;
+
+      box-shadow: none;
+
+    }
+
+
+
+    button.icon {
+
+      padding: 3px 8px;
+
+      border-radius: 999px;
+
+      font-size: 0.85rem;
+
+      min-width: 26px;
+
+      justify-content: center;
+
+      box-shadow: none;
+
+    }
+
+
+
+    button.secondary.icon {
+
+      background: #f3f4f6;
+
+      border: 1px solid #e5e7eb;
+
+    }
+
+
+
+    /* Tabs */
+
+    .tab-row {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 6px;
+
+    }
+
+
+
+    .tab-chip {
+
+      padding: 5px 10px;
+
+      border-radius: 999px;
+
+      border: 1px solid transparent;
+
+      font-size: 0.78rem;
+
+      cursor: pointer;
+
+      background: rgba(255,255,255,0.75);
+
+      color: #4b5563;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 5px;
+
+      box-shadow: 0 4px 10px rgba(148, 163, 184, 0.35);
+
+      transition: all 0.12s ease-out;
+
+    }
+
+
+
+    .tab-chip .bubble {
+
+      width: 8px;
+
+      height: 8px;
+
+      border-radius: 999px;
+
+      background: #e5e7eb;
+
+    }
+
+
+
+    .tab-chip.day {
+
+      background: linear-gradient(135deg, rgba(244, 114, 182, 0.05), rgba(59, 130, 246, 0.04));
+
+    }
+
+
+
+    .tab-chip.person {
+
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(59, 130, 246, 0.04));
+
+    }
+
+
+
+    .tab-chip.active.day {
+
+      background: linear-gradient(135deg, #6366f1, #f97316);
+
+      color: white;
+
+      border-color: rgba(255,255,255,0.9);
+
+    }
+
+
+
+    .tab-chip.active.person {
+
+      background: linear-gradient(135deg, #22c55e, #06b6d4);
+
+      color: white;
+
+      border-color: rgba(255,255,255,0.9);
+
+    }
+
+
+
+    .tab-chip.active .bubble {
+
+      background: rgba(255,255,255,0.9);
+
+    }
+
+
+
+    /* Summary pills */
+
+    .summary-row {
+
+      display: grid;
+
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+
+      gap: 10px;
+
+      margin-top: 6px;
+
+    }
+
+
+
+    @media (max-width: 700px) {
+
+      .summary-row {
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      }
+
+    }
+
+
+
+    @media (max-width: 460px) {
+
+      .summary-row {
+
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+
+      }
+
+    }
+
+
+
+    .summary-pill {
+
+      border-radius: 16px;
+
+      padding: 8px 10px;
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 4px;
+
+      background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(239, 246, 255, 0.9));
+
+      border: 1px solid rgba(209, 213, 219, 0.9);
+
+    }
+
+
+
+    .summary-pill .label-row {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      gap: 6px;
+
+    }
+
+
+
+    .summary-pill-title {
+
+      font-size: 0.78rem;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.06em;
+
+      color: #a1a1aa;
+
+    }
+
+
+
+    .summary-pill-main {
+
+      font-size: 0.88rem;
+
+      font-weight: 600;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+    }
+
+
+
+    .summary-pill-value {
+
+      font-size: 1.15rem;
+
+      font-weight: 700;
+
+    }
+
+
+
+    .summary-pill-badge {
+
+      padding: 1px 6px;
+
+      border-radius: 999px;
+
+      font-size: 0.7rem;
+
+      background: rgba(59, 130, 246, 0.12);
+
+      color: #2563eb;
+
+    }
+
+
+
+    /* Chores table */
+
+    .table-wrapper {
+
+      border-radius: 16px;
+
+      border: 1px solid rgba(226, 232, 240, 0.9);
+
+      overflow: hidden;
+
+      background: rgba(249, 250, 251, 0.9);
+
+    }
+
+
+
+    table {
+
+      width: 100%;
+
+      border-collapse: collapse;
+
+      font-size: 0.84rem;
+
+    }
+
+
+
+    th, td {
+
+      padding: 7px 8px;
+
+      text-align: left;
+
+    }
+
+
+
+    th {
+
+      background: linear-gradient(90deg, rgba(129, 140, 248, 0.07), rgba(236, 72, 153, 0.02));
+
+      color: #6b7280;
+
+      font-weight: 600;
+
+      border-bottom: 1px solid rgba(229, 231, 235, 0.9);
+
+      white-space: nowrap;
+
+    }
+
+
+
+    tbody tr:nth-child(even) td {
+
+      background: rgba(255,255,255,0.9);
+
+    }
+
+
+
+    tbody tr:nth-child(odd) td {
+
+      background: rgba(249, 250, 251, 0.9);
+
+    }
+
+
+
+    .chore-name {
+
+      font-weight: 600;
+
+    }
+
+
+
+    .chore-chip {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 4px;
+
+      padding: 2px 7px;
+
+      border-radius: 999px;
+
+      background: rgba(251, 191, 36, 0.14);
+
+      color: #92400e;
+
+      font-size: 0.7rem;
+
+      margin-top: 2px;
+
+    }
+
+
+
+    .chore-chip span.bubble {
+
+      width: 6px;
+
+      height: 6px;
+
+      border-radius: 999px;
+
+      background: #f59e0b;
+
+    }
+
+
+
+    .count-controls {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+    }
+
+
+
+    .count-display {
+
+      min-width: 22px;
+
+      text-align: center;
+
+      font-variant-numeric: tabular-nums;
+
+      font-weight: 600;
+
+      color: #111827;
+
+    }
+
+
+
+    .target-text {
+
+      font-variant-numeric: tabular-nums;
+
+      padding: 3px 7px;
+
+      border-radius: 999px;
+
+      font-size: 0.76rem;
+
+      background: rgba(239, 246, 255, 0.9);
+
+      color: #1e40af;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 5px;
+
+    }
+
+
+
+    .target-text.over {
+
+      background: rgba(254, 226, 226, 0.9);
+
+      color: #b91c1c;
+
+    }
+
+
+
+    .target-dot {
+
+      width: 7px;
+
+      height: 7px;
+
+      border-radius: 999px;
+
+      background: #4ade80;
+
+    }
+
+
+
+    .target-text.over .target-dot {
+
+      background: var(--danger);
+
+    }
+
+
+
+    .action-cell {
+
+      text-align: right;
+
+    }
+
+
+
+    .empty-state {
+
+      padding: 14px 10px;
+
+      font-size: 0.85rem;
+
+      text-align: center;
+
+      color: var(--text-muted);
+
+    }
+
+
+
+    .empty-state span.icon {
+
+      font-size: 1.1rem;
+
+      margin-right: 4px;
+
+    }
+
+
+
+    .badge-soft {
+
+      font-size: 0.7rem;
+
+      padding: 2px 7px;
+
+      border-radius: 999px;
+
+      background: rgba(248, 250, 252, 0.9);
+
+      color: #6b7280;
+
+    }
+
+
+
+    /* Add chore form */
+
+    #addChoreForm {
+
+      margin-top: 4px;
+
+    }
+
+
+
+    .add-chore-main {
+
+      flex: 1 1 200px;
+
+    }
+
+
+
+    .add-chore-target {
+
+      width: 120px;
+
+    }
+
+
+
+    .sparkles {
+
+      font-size: 1.1rem;
+
+    }
+
+
+
+    .faded {
+
+      opacity: 0.7;
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <main class="app">
+
+    <div class="app-inner">
+
+      <header class="app-header">
+
+        <div class="title-row">
+
+          <h1>
+
+            <span class="emoji">🧹✨</span>
+
+            <span>Rainbow Chore Tracker</span>
+
+          </h1>
+
+          <div class="badge-soft">2 people · 7 days · 1 happy house</div>
+
+        </div>
+
+        <div class="week-pill">
+
+          <span class="pill-dot"></span>
+
+          <div>
+
+            <div class="label">Week</div>
+
+            <div class="dates" id="weekLabel"></div>
+
+          </div>
+
+        </div>
+
+      </header>
+
+
+
+      <!-- Top grid: names + tabs -->
+
+      <section class="grid-top">
+
+        <!-- Names & reset -->
+
+        <section class="card">
+
+          <div class="card-header">
+
+            <div class="card-title">
+
+              👥 Housemates
+
+              <span class="card-title-pill">Who’s doing what?</span>
+
+            </div>
+
+            <button id="resetWeekBtn" class="small secondary" type="button" title="Reset all counts for all days">
+
+              <span class="dot"></span>
+
+              New week
+
+            </button>
+
+          </div>
+
+
+
+          <div class="row stretch">
+
+            <div class="name-field">
+
+              <label for="person1Input">Person 1</label>
+
+              <input id="person1Input" type="text" placeholder="e.g. You 🧑">
+
+            </div>
+
+            <div class="name-field">
+
+              <label for="person2Input">Person 2</label>
+
+              <input id="person2Input" type="text" placeholder="e.g. Roomie 🧑‍🦰">
+
+            </div>
+
+          </div>
+
+          <div class="tiny" style="margin-top: 6px;">
+
+            Tip: Rename them to whoever shares the chores – partners, kids, housemates, whoever needs to help. 😉
+
+          </div>
+
+        </section>
+
+
+
+        <!-- Day & person tabs -->
+
+        <section class="card">
+
+          <div class="card-header">
+
+            <div class="card-title">
+
+              📅 View
+
+              <span class="card-title-pill">Day & person</span>
+
+            </div>
+
+          </div>
+
+
+
+          <div style="margin-bottom: 8px;">
+
+            <label>Day of week</label>
+
+            <div class="tab-row" id="dayTabs"></div>
+
+          </div>
+
+
+
+          <div>
+
+            <label>Focus</label>
+
+            <div class="tab-row" id="personTabs"></div>
+
+          </div>
+
+          <div class="tiny" style="margin-top: 6px;">
+
+            Switch days along the top, and focus on one person or both to see who’s pulling their weight. 💪
+
+          </div>
+
+        </section>
+
+      </section>
+
+
+
+      <!-- Bottom grid: chores + summary -->
+
+      <section class="grid-bottom">
+
+        <!-- Chores table & form -->
+
+        <section class="card">
+
+          <div class="card-header">
+
+            <div class="card-title">
+
+              🧼 Chores for this day
+
+              <span class="card-title-pill" id="choresTitleBadge">Today</span>
+
+            </div>
+
+            <div class="tiny faded" id="choresSubtitle"></div>
+
+          </div>
+
+
+
+          <!-- Add chore -->
+
+          <form id="addChoreForm" class="row stretch" autocomplete="off">
+
+            <div class="add-chore-main">
+
+              <label for="choreNameInput">New chore</label>
+
+              <input id="choreNameInput" type="text" placeholder="e.g. Dishes, Vacuum, Take out bins" required>
+
+            </div>
+
+            <div class="add-chore-target">
+
+              <label for="targetInput">Weekly target</label>
+
+              <input id="targetInput" type="number" min="1" value="1">
+
+            </div>
+
+            <div style="align-self: flex-end;">
+
+              <button type="submit">
+
+                <span class="sparkles">✨</span>
+
+                Add chore
+
+              </button>
+
+            </div>
+
+          </form>
+
+
+
+          <div style="margin-top: 10px;">
+
+            <div class="table-wrapper" id="choreTableWrapper">
+
+              <div id="choreTableContainer"></div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+
+        <!-- Summary -->
+
+        <section class="card">
+
+          <div class="card-header">
+
+            <div class="card-title">
+
+              📊 Weekly vibes
+
+              <span class="card-title-pill">Quick stats</span>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="summary-row">
+
+            <div class="summary-pill">
+
+              <div class="label-row">
+
+                <div>
+
+                  <div class="summary-pill-title">Today (both)</div>
+
+                  <div class="summary-pill-main">
+
+                    <span id="summaryDayLabel">Mon</span>
+
+                    <span class="badge-soft">All chores</span>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="summary-pill-value" id="summaryDayCount">0</div>
+
+            </div>
+
+
+
+            <div class="summary-pill">
+
+              <div class="label-row">
+
+                <div>
+
+                  <div class="summary-pill-title">Whole week</div>
+
+                  <div class="summary-pill-main">
+
+                    <span>All days</span>
+
+                    <span class="summary-pill-badge">Shared load</span>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="summary-pill-value" id="summaryWeekCount">0</div>
+
+            </div>
+
+
+
+            <div class="summary-pill">
+
+              <div class="label-row">
+
+                <div>
+
+                  <div class="summary-pill-title">Person focus</div>
+
+                  <div class="summary-pill-main">
+
+                    <span id="summaryPersonLabel">Both</span>
+
+                    <span class="summary-pill-badge">All week</span>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="summary-pill-value" id="summaryPersonCount">0</div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="tiny" style="margin-top: 8px;">
+
+            Goal: By Sunday night, the numbers feel fair and the house feels ✨ less chaotic.
+
+          </div>
+
+        </section>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+
+  <script>
+
+    // -------------------- Constants --------------------
+
+
+
+    const STORAGE_KEY = 'rainbow-chore-tracker-v1';
+
+
+
+    const DAYS = [
+
+      { key: 'mon', label: 'Mon', emoji: '🌤️' },
+
+      { key: 'tue', label: 'Tue', emoji: '💼' },
+
+      { key: 'wed', label: 'Wed', emoji: '🐪' },
+
+      { key: 'thu', label: 'Thu', emoji: '⚡' },
+
+      { key: 'fri', label: 'Fri', emoji: '🎉' },
+
+      { key: 'sat', label: 'Sat', emoji: '🛝' },
+
+      { key: 'sun', label: 'Sun', emoji: '☕' }
+
+    ];
+
+
+
+    const PERSON_FILTERS = [
+
+      { key: 'both', label: 'Both', emoji: '🤝' },
+
+      { key: 'p1', label: 'Person 1', emoji: '🧑' },
+
+      { key: 'p2', label: 'Person 2', emoji: '🧑‍🦰' }
+
+    ];
+
+
+
+    // -------------------- State --------------------
+
+
+
+    let state = {
+
+      person1Name: 'Person 1',
+
+      person2Name: 'Person 2',
+
+      chores: [], // [{ id, name, weeklyTarget }]
+
+      logs: {},   // { [dayKey]: { [choreId]: { p1Count, p2Count } } }
+
+      activeDay: 'mon',
+
+      activePersonFilter: 'both'
+
+    };
+
+
+
+    function loadState() {
+
+      try {
+
+        const raw = localStorage.getItem(STORAGE_KEY);
+
+        if (raw) {
+
+          const parsed = JSON.parse(raw);
+
+          state.person1Name = parsed.person1Name || 'Person 1';
+
+          state.person2Name = parsed.person2Name || 'Person 2';
+
+          state.chores = Array.isArray(parsed.chores) ? parsed.chores : [];
+
+          state.logs = parsed.logs && typeof parsed.logs === 'object' ? parsed.logs : {};
+
+          state.activeDay = parsed.activeDay || 'mon';
+
+          state.activePersonFilter = parsed.activePersonFilter || 'both';
+
+        }
+
+      } catch (e) {
+
+        console.error('Failed to load state', e);
+
+      }
+
+    }
+
+
+
+    function saveState() {
+
+      try {
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+      } catch (e) {
+
+        console.error('Failed to save state', e);
+
+      }
+
+    }
+
+
+
+    function ensureDayLog(dayKey) {
+
+      if (!state.logs[dayKey]) {
+
+        state.logs[dayKey] = {};
+
+      }
+
+      return state.logs[dayKey];
+
+    }
+
+
+
+    function createChore(name, weeklyTarget) {
+
+      return {
+
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+
+        name: name.trim(),
+
+        weeklyTarget: weeklyTarget > 0 ? weeklyTarget : 1
+
+      };
+
+    }
+
+
+
+    // -------------------- Week label helpers --------------------
+
+
+
+    function getStartOfWeek(date = new Date()) {
+
+      const d = new Date(date);
+
+      const day = d.getDay(); // 0 = Sun
+
+      const diff = (day === 0 ? -6 : 1) - day; // Monday start
+
+      d.setDate(d.getDate() + diff);
+
+      d.setHours(0, 0, 0, 0);
+
+      return d;
+
+    }
+
+
+
+    function formatShortDate(date) {
+
+      return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+
+    }
+
+
+
+    function updateWeekLabel() {
+
+      const start = getStartOfWeek();
+
+      const end = new Date(start);
+
+      end.setDate(end.getDate() + 6);
+
+      document.getElementById('weekLabel').textContent =
+
+        `${formatShortDate(start)} – ${formatShortDate(end)}`;
+
+    }
+
+
+
+    // -------------------- Rendering helpers --------------------
+
+
+
+    function getDayLabel(dayKey) {
+
+      const d = DAYS.find(x => x.key === dayKey);
+
+      return d ? d.label : dayKey;
+
+    }
+
+
+
+    function getDayEmoji(dayKey) {
+
+      const d = DAYS.find(x => x.key === dayKey);
+
+      return d ? d.emoji : '📅';
+
+    }
+
+
+
+    function escapeHtml(str) {
+
+      return String(str)
+
+        .replace(/&/g, '&amp;')
+
+        .replace(/</g, '&lt;')
+
+        .replace(/>/g, '&gt;')
+
+        .replace(/"/g, '&quot;')
+
+        .replace(/'/g, '&#039;');
+
+    }
+
+
+
+    // -------------------- Rendering: names --------------------
+
+
+
+    function renderNames() {
+
+      const p1 = document.getElementById('person1Input');
+
+      const p2 = document.getElementById('person2Input');
+
+
+
+      p1.value = state.person1Name;
+
+      p2.value = state.person2Name;
+
+
+
+      const filter = state.activePersonFilter;
+
+      const summaryPersonLabel = document.getElementById('summaryPersonLabel');
+
+      if (filter === 'p1') summaryPersonLabel.textContent = state.person1Name;
+
+      else if (filter === 'p2') summaryPersonLabel.textContent = state.person2Name;
+
+      else summaryPersonLabel.textContent = 'Both';
+
+
+
+      // Also refresh person tabs to reflect new names
+
+      renderPersonTabs();
+
+    }
+
+
+
+    // -------------------- Rendering: tabs --------------------
+
+
+
+    function renderDayTabs() {
+
+      const container = document.getElementById('dayTabs');
+
+      container.innerHTML = '';
+
+      DAYS.forEach(day => {
+
+        const btn = document.createElement('button');
+
+        btn.type = 'button';
+
+        btn.className = 'tab-chip day' + (state.activeDay === day.key ? ' active' : '');
+
+        btn.dataset.dayKey = day.key;
+
+
+
+        const bubble = document.createElement('span');
+
+        bubble.className = 'bubble';
+
+        btn.appendChild(bubble);
+
+
+
+        const labelSpan = document.createElement('span');
+
+        labelSpan.textContent = `${day.emoji} ${day.label}`;
+
+        btn.appendChild(labelSpan);
+
+
+
+        container.appendChild(btn);
+
+      });
+
+    }
+
+
+
+    function renderPersonTabs() {
+
+      const container = document.getElementById('personTabs');
+
+      container.innerHTML = '';
+
+      PERSON_FILTERS.forEach(f => {
+
+        const btn = document.createElement('button');
+
+        btn.type = 'button';
+
+        btn.className = 'tab-chip person' + (state.activePersonFilter === f.key ? ' active' : '');
+
+        btn.dataset.filter = f.key;
+
+
+
+        const bubble = document.createElement('span');
+
+        bubble.className = 'bubble';
+
+        btn.appendChild(bubble);
+
+
+
+        const labelSpan = document.createElement('span');
+
+        if (f.key === 'p1') {
+
+          labelSpan.textContent = `${f.emoji} ${state.person1Name}`;
+
+        } else if (f.key === 'p2') {
+
+          labelSpan.textContent = `${f.emoji} ${state.person2Name}`;
+
+        } else {
+
+          labelSpan.textContent = `${f.emoji} Both`;
+
+        }
+
+        btn.appendChild(labelSpan);
+
+
+
+        container.appendChild(btn);
+
+      });
+
+    }
+
+
+
+    // -------------------- Rendering: summary --------------------
+
+
+
+    function renderSummary() {
+
+      const dayKey = state.activeDay;
+
+      const activeFilter = state.activePersonFilter;
+
+
+
+      let dayTotal = 0;
+
+      let weekTotal = 0;
+
+      let personTotal = 0;
+
+
+
+      for (const d of DAYS) {
+
+        const log = ensureDayLog(d.key);
+
+        state.chores.forEach(ch => {
+
+          const entry = log[ch.id] || { p1Count: 0, p2Count: 0 };
+
+          const totalDay = (entry.p1Count || 0) + (entry.p2Count || 0);
+
+          if (d.key === dayKey) {
+
+            dayTotal += totalDay;
+
+          }
+
+          weekTotal += totalDay;
+
+
+
+          if (activeFilter === 'p1') personTotal += entry.p1Count || 0;
+
+          else if (activeFilter === 'p2') personTotal += entry.p2Count || 0;
+
+          else personTotal += totalDay;
+
+        });
+
+      }
+
+
+
+      document.getElementById('summaryDayLabel').textContent =
+
+        `${getDayEmoji(dayKey)} ${getDayLabel(dayKey)}`;
+
+      document.getElementById('summaryDayCount').textContent = dayTotal;
+
+      document.getElementById('summaryWeekCount').textContent = weekTotal;
+
+
+
+      const summaryPersonLabel = document.getElementById('summaryPersonLabel');
+
+      if (activeFilter === 'p1') summaryPersonLabel.textContent = state.person1Name;
+
+      else if (activeFilter === 'p2') summaryPersonLabel.textContent = state.person2Name;
+
+      else summaryPersonLabel.textContent = 'Both';
+
+
+
+      document.getElementById('summaryPersonCount').textContent = personTotal;
+
+    }
+
+
+
+    // -------------------- Rendering: chores table --------------------
+
+
+
+    function renderChores() {
+
+      const container = document.getElementById('choreTableContainer');
+
+      const dayKey = state.activeDay;
+
+      const filter = state.activePersonFilter;
+
+
+
+      const dayLabel = getDayLabel(dayKey);
+
+      const dayEmoji = getDayEmoji(dayKey);
+
+
+
+      const badge = document.getElementById('choresTitleBadge');
+
+      const subtitle = document.getElementById('choresSubtitle');
+
+
+
+      const focusLabel =
+
+        filter === 'both'
+
+          ? 'both people'
+
+          : (filter === 'p1' ? state.person1Name : state.person2Name);
+
+
+
+      badge.textContent = `${dayEmoji} ${dayLabel}`;
+
+      subtitle.textContent = `Tracking chores for ${dayLabel} – viewing ${focusLabel}.`;
+
+
+
+      if (!state.chores.length) {
+
+        container.innerHTML = `
+
+          <div class="empty-state">
+
+            <span class="icon">🪄</span>
+
+            No chores yet. Add one above to start building your weekly plan.
+
+          </div>`;
+
+        return;
+
+      }
+
+
+
+      const dayLog = ensureDayLog(dayKey);
+
+
+
+      let html = `
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Chore</th>
+
+      `;
+
+
+
+      if (filter === 'both') {
+
+        html += `
+
+          <th>${escapeHtml(state.person1Name)}</th>
+
+          <th>${escapeHtml(state.person2Name)}</th>
+
+        `;
+
+      } else {
+
+        const label = filter === 'p1' ? state.person1Name : state.person2Name;
+
+        html += `<th>${escapeHtml(label)}</th>`;
+
+      }
+
+
+
+      html += `
+
+          <th>Weekly total</th>
+
+          <th></th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+      `;
+
+
+
+      state.chores.forEach(chore => {
+
+        const entry = dayLog[chore.id] || { p1Count: 0, p2Count: 0 };
+
+        const p1 = entry.p1Count || 0;
+
+        const p2 = entry.p2Count || 0;
+
+
+
+        const weeklyTotal = Object.values(state.logs).reduce((acc, log) => {
+
+          const e = log[chore.id];
+
+          if (!e) return acc;
+
+          return acc + (e.p1Count || 0) + (e.p2Count || 0);
+
+        }, 0);
+
+
+
+        const overTarget = weeklyTotal > chore.weeklyTarget;
+
+
+
+        html += `
+
+          <tr data-id="${chore.id}">
+
+            <td>
+
+              <div class="chore-name">${escapeHtml(chore.name)}</div>
+
+              <div class="chore-chip">
+
+                <span class="bubble"></span>
+
+                <span>Target: ${chore.weeklyTarget} / week</span>
+
+              </div>
+
+            </td>
+
+        `;
+
+
+
+        if (filter === 'both') {
+
+          html += `
+
+            <td>
+
+              <div class="count-controls">
+
+                <button class="icon secondary" data-action="dec" data-person="p1" type="button">−</button>
+
+                <span class="count-display">${p1}</span>
+
+                <button class="icon" data-action="inc" data-person="p1" type="button">+</button>
+
+              </div>
+
+            </td>
+
+            <td>
+
+              <div class="count-controls">
+
+                <button class="icon secondary" data-action="dec" data-person="p2" type="button">−</button>
+
+                <span class="count-display">${p2}</span>
+
+                <button class="icon" data-action="inc" data-person="p2" type="button">+</button>
+
+              </div>
+
+            </td>
+
+          `;
+
+        } else {
+
+          const personKey = filter;
+
+          const personCount = personKey === 'p1' ? p1 : p2;
+
+          html += `
+
+            <td>
+
+              <div class="count-controls">
+
+                <button class="icon secondary" data-action="dec" data-person="${personKey}" type="button">−</button>
+
+                <span class="count-display">${personCount}</span>
+
+                <button class="icon" data-action="inc" data-person="${personKey}" type="button">+</button>
+
+              </div>
+
+            </td>
+
+          `;
+
+        }
+
+
+
+        html += `
+
+            <td>
+
+              <span class="target-text ${overTarget ? 'over' : ''}">
+
+                <span class="target-dot"></span>
+
+                ${weeklyTotal} / ${chore.weeklyTarget}
+
+              </span>
+
+            </td>
+
+            <td class="action-cell">
+
+              <button class="small secondary" data-action="delete" type="button">Remove</button>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      });
+
+
+
+      html += '</tbody></table>';
+
+      container.innerHTML = html;
+
+    }
+
+
+
+    // -------------------- Event handlers --------------------
+
+
+
+    function handleNameChange() {
+
+      const p1 = document.getElementById('person1Input');
+
+      const p2 = document.getElementById('person2Input');
+
+      state.person1Name = p1.value.trim() || 'Person 1';
+
+      state.person2Name = p2.value.trim() || 'Person 2';
+
+      saveState();
+
+      renderNames();
+
+      renderChores();
+
+      renderSummary();
+
+    }
+
+
+
+    function handleDayTabsClick(e) {
+
+      const btn = e.target.closest('button[data-day-key]');
+
+      if (!btn) return;
+
+      state.activeDay = btn.dataset.dayKey;
+
+      saveState();
+
+      renderDayTabs();
+
+      renderChores();
+
+      renderSummary();
+
+    }
+
+
+
+    function handlePersonTabsClick(e) {
+
+      const btn = e.target.closest('button[data-filter]');
+
+      if (!btn) return;
+
+      state.activePersonFilter = btn.dataset.filter;
+
+      saveState();
+
+      renderPersonTabs();
+
+      renderSummary();
+
+      renderChores();
+
+    }
+
+
+
+    function handleAddChore(e) {
+
+      e.preventDefault();
+
+      const nameInput = document.getElementById('choreNameInput');
+
+      const targetInput = document.getElementById('targetInput');
+
+
+
+      const name = nameInput.value.trim();
+
+      if (!name) return;
+
+
+
+      const target = parseInt(targetInput.value, 10) || 1;
+
+      const newChore = createChore(name, target);
+
+      state.chores.push(newChore);
+
+
+
+      nameInput.value = '';
+
+      targetInput.value = '1';
+
+
+
+      saveState();
+
+      renderChores();
+
+      renderSummary();
+
+    }
+
+
+
+    function handleChoreTableClick(e) {
+
+      const button = e.target.closest('button');
+
+      if (!button) return;
+
+
+
+      const action = button.dataset.action;
+
+      const person = button.dataset.person;
+
+      const row = button.closest('tr[data-id]');
+
+      if (!row) return;
+
+
+
+      const choreId = row.dataset.id;
+
+      const dayKey = state.activeDay;
+
+      const dayLog = ensureDayLog(dayKey);
+
+      const entry = dayLog[choreId] || { p1Count: 0, p2Count: 0 };
+
+
+
+      if (action === 'delete') {
+
+        const chore = state.chores.find(c => c.id === choreId);
+
+        if (chore && confirm(`Remove "${chore.name}" from every day of the week?`)) {
+
+          state.chores = state.chores.filter(c => c.id !== choreId);
+
+          Object.keys(state.logs).forEach(key => {
+
+            if (state.logs[key] && state.logs[key][choreId]) {
+
+              delete state.logs[key][choreId];
+
+            }
+
+          });
+
+        }
+
+      } else if ((action === 'inc' || action === 'dec') && person) {
+
+        const delta = action === 'inc' ? 1 : -1;
+
+        if (person === 'p1') {
+
+          entry.p1Count = Math.max(0, (entry.p1Count || 0) + delta);
+
+        } else if (person === 'p2') {
+
+          entry.p2Count = Math.max(0, (entry.p2Count || 0) + delta);
+
+        }
+
+        dayLog[choreId] = entry;
+
+        state.logs[dayKey] = dayLog;
+
+      }
+
+
+
+      saveState();
+
+      renderChores();
+
+      renderSummary();
+
+    }
+
+
+
+    function handleResetWeek() {
+
+      const ok = confirm('Reset all chore counts for every day of this week? (Chores and names stay.)');
+
+      if (!ok) return;
+
+      state.logs = {};
+
+      saveState();
+
+      renderChores();
+
+      renderSummary();
+
+    }
+
+
+
+    // -------------------- Init --------------------
+
+
+
+    function setInitialActiveDay() {
+
+      if (state.activeDay) return;
+
+      const today = new Date().getDay(); // 0 = Sun
+
+      const map = { 0: 'sun', 1: 'mon', 2: 'tue', 3: 'wed', 4: 'thu', 5: 'fri', 6: 'sat' };
+
+      state.activeDay = map[today] || 'mon';
+
+    }
+
+
+
+    function init() {
+
+      loadState();
+
+      setInitialActiveDay();
+
+      updateWeekLabel();
+
+
+
+      renderDayTabs();
+
+      renderPersonTabs();
+
+      renderNames();
+
+      renderChores();
+
+      renderSummary();
+
+
+
+      document.getElementById('person1Input').addEventListener('change', handleNameChange);
+
+      document.getElementById('person2Input').addEventListener('change', handleNameChange);
+
+
+
+      document.getElementById('dayTabs').addEventListener('click', handleDayTabsClick);
+
+      document.getElementById('personTabs').addEventListener('click', handlePersonTabsClick);
+
+      document.getElementById('addChoreForm').addEventListener('submit', handleAddChore);
+
+      document.getElementById('choreTableWrapper').addEventListener('click', handleChoreTableClick);
+
+      document.getElementById('resetWeekBtn').addEventListener('click', handleResetWeek);
+
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', init);
+
+  </script>
+
+</body>
+
+</html>
